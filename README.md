@@ -40,3 +40,8 @@ These queries are also avaible via REST API using our [EDD Software Licensing En
   $sl = new \CalderaWP\EDD\SL\sites();
   $sites = $sl->get_user_sites(42);
 ```
+
+
+### Copyright/ License
+Copyright 2016 Josh Pollock & CalderaWP LLC. Licensed under the terms of the GNU GPL v2 or later.
+
