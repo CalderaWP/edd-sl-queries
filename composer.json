@@ -1,0 +1,24 @@
+{
+    "name": "calderawp/edd-sl-queries",
+    "description": "Useful queries for Easy Digital Downloads Software Licensing.",
+    "keywords": [
+        "wordpress"
+    ],
+    "minimum-stability": "dev",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Josh Pollock",
+            "homepage": "https://CalderaWP.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+    },
+    "autoload": {
+        "psr-4": {
+            "\\CalderaWP\\EDD\\SL\\": "src"
+        },
+    }
+}
