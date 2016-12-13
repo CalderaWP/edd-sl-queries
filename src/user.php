@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: josh
- * Date: 12/12/16
- * Time: 10:18 PM
- */
 
 namespace CalderaWP\EDD\SL;
 
@@ -12,17 +6,36 @@ namespace CalderaWP\EDD\SL;
 class user {
 
 	/**
-	 * Get all licensed add-ons for a user
+	 * @var int
+	 */
+	protected $user_id;
+
+	/**
+	 * user constructor.
 	 *
 	 * @param null|int $user_id Optional. User ID, current user ID if mull
-	 * @param bool $include_expired Optional. If false the default, expired licenses will be skipped.
-	 *
-	 * @return bool|array Array of download_id => download title or false if none found.
 	 */
-	function downloads_by_licensed_user( $user_id = null, $include_expired = false ) {
-		if ( is_null( $user_id ) ){
-			$user_id = get_current_user_id();
+	public function __construct( $user_id = null ) {
+		if ( is_null( $this->user_id ) ){
+			$this->user_id = get_current_user_id();
+		}else{
+			$this->user_id = $user_id;
 		}
+
+	}
+
+	/**
+	 * 	Get all licensed add-ons for a user
+	 *
+	 * @param bool $include_expired
+	 * @param bool $with_license If true return is flat array of download_id => download title or false if none found. If false, license details included
+	 *
+	 * @return bool
+	 */
+	public function downloads_by_licensed_user(  $include_expired = false, $with_license = false ) {
+
+		$user_id = $this->user_id;
+
 
 		$licensed_downloads = false;
 		if ( 0 < absint( $user_id ) ) {
@@ -41,7 +54,18 @@ class user {
 					}
 					$id = get_post_meta( $license[ 'post_id'], '_edd_sl_download_id', true );
 					if ( $id ) {
-						$licensed_downloads[$id] = get_the_title( $id );
+						if ( ! $with_license ) {
+							$licensed_downloads[ $id ] = get_the_title( $id );
+						} else {
+							$licensed_downloads[ $id ] = [
+								'title' => get_the_title( $id ),
+								'license' =>
+									[
+										'id' => $license[ 'post_id' ],
+										'code' => \EDD_Software_Licensing::instance()->get_license_key( $license[ 'post_id' ] )
+									],
+							];
+						}
 					}
 
 				}
@@ -54,5 +78,23 @@ class user {
 
 	}
 
+	/**
+	 * Get a download file for license/ID
+	 *
+	 * @param int $download_id
+	 * @param int $license_id
+	 *
+	 * @return string
+	 */
+	public function get_file_by_license_id( $download_id, $license_id ){
+		$payment_id = \EDD_Software_Licensing::instance()->get_payment_id( $license_id );
+		$payment_key = edd_get_payment_key( $payment_id );
+		$file_key  = get_post_meta( $download_id, '_edd_sl_upgrade_file_key', true );
+		$email       = edd_get_payment_user_email( $payment_id );
+
+		$file = edd_get_download_file_url( $payment_key, $email, $file_key, $download_id );
+
+		return $file;
+	}
 
 }
